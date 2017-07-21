@@ -4,6 +4,9 @@ from django.db import models
 class DayOff(models.Model):
     date = models.DateField()
 
+    def __str__(self):
+        return u'%s %s' % (self.date.month, self.date.day)
+
 # Resident centric database 
 class Resident(models.Model):
     YEAR_RES_CHOICES = (

@@ -31,13 +31,13 @@ ALLOWED_HOSTS = ['stjoesscheduler.com','www.stjoesscheduler.com',]
 # Application definition
 
 INSTALLED_APPS = [
+    'scheduler.apps.SchedulerConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'scheduler.apps.SchedulerConfig',
 ]
 
 MIDDLEWARE = [
