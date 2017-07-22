@@ -2,10 +2,9 @@ from django.db import models
 
 # Requested day off by resident
 class DayOff(models.Model):
-    date = models.DateField()
-
+    date = models.DateField(verbose_name="PTO Date")
     def __str__(self):
-        return u'%s %s' % (self.date.month, self.date.day)
+        return u'%s %s, %s' % (self.date.strftime("%B"), self.date.day, self.date.year)
 
 # Resident centric database 
 class Resident(models.Model):
@@ -16,17 +15,22 @@ class Resident(models.Model):
             (4, 'PGY4'),
             (5, 'PGY5'),
     )
-    name = models.CharField(max_length=50)
-    year = models.IntegerField(choices = YEAR_RES_CHOICES)
-    PTO = models.ManyToManyField(DayOff)
-    noCallDays = models.IntegerField()
-    noWkndCallDays = models.IntegerField()
+    fname = models.CharField(max_length=50, verbose_name="First Name", blank=True)
+    lname = models.CharField(max_length=50, verbose_name="Last Name", blank=True)
+    name = models.CharField(max_length=50, verbose_name="Resident Name", blank=True)
+    year = models.IntegerField(choices = YEAR_RES_CHOICES, verbose_name="Year of Service")
+    PTO = models.ManyToManyField(DayOff, verbose_name="PTO Requested Days", blank=True)
+    noCallDays = models.IntegerField(default=0, verbose_name="Number of Call Days")
+    noWkndCallDays = models.IntegerField(default=0,verbose_name="Number of Weekend Call Days")
     resType = models.CharField(max_length=16, blank=True)
 
     # Auto write junior or senior
     def save(self, *args, **kwargs):
         self.resType = "Senior" if self.year >= 3 else "Junior"
         super(Resident, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return u'%s, %s - PGY%s' % (self.lname, self.fname, self.year)
 
 # Service that residents can be on
 class Service(models.Model):
@@ -45,14 +49,21 @@ class Service(models.Model):
             (7,"Gen Surg - Blue"),(8,"Gen Surg - Orange"),
             (9,"Plastics"),(10,"PCH"),
             (11,"Thoracic"),(12,"Anesthesia / IR"),
-            (13,"Other"),
+            (13,"Critical Care"), (14, "Harding"), (15,"Other"),
     )
-    month = models.IntegerField(choices = MONTH_CHOICES) 
-    onservice = models.IntegerField(choices = SERVICE_CHOICES)
-    res = models.ForeignKey(Resident)
+    YEAR_CHOICES = (
+            (2017, 2017), (2018, 2018), (2019, 2019),
+    )
+    month = models.IntegerField(choices = MONTH_CHOICES, verbose_name="Month of Year") 
+    year = models.IntegerField(choices = YEAR_CHOICES, verbose_name="Year")
+    onservice = models.IntegerField(choices = SERVICE_CHOICES, verbose_name ="Service")
+    res = models.ForeignKey(Resident, verbose_name="Resident on Service")
+
+    def __str__(self):
+        return u'%s %s' % (self.month, self.onservice)
 
 # Individual day of call schedule - this is all we need for schedule storing!
 class Day(models.Model):
-    date = models.DateField()
-    residents  = models.ManyToManyField(Resident) 
+    date = models.DateField(verbose_name="On Call Day")
+    residents  = models.ManyToManyField(Resident, verbose_name="Residents on Call") 
 

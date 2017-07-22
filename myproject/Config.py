@@ -14,13 +14,38 @@ class Service(Enum):
     GS_GOLD = 6
     GS_BLUE = 7
     GS_ORANGE = 8
-
+    PLASTICS = 9
+    PCH = 10
+    THORACIC = 11
+    ANIR = 12
+    CRITCARE = 13
+    HARDING = 14
+    OTHER = 15
 
 # Types of resident
 class Type(Enum):
     JUNIOR = 1
     SENIOR = 2
 
+# Call Mapping
+class TakesCall:
+    allCall = [1,3,4,5,6,7,8,12,13,14]
+    jrCall = [2]
+    mapServices = {1: Service.TRAUMA,
+                   2: Service.HPB_TRANSPLANT,
+                   3: Service.VASCULAR,
+                   4: Service.COLORECTAL,
+                   5: Service.BREAST,
+                   6: Service.GS_GOLD,
+                   7: Service.GS_BLUE,
+                   8: Service.GS_ORANGE,
+                   9: Service.PLASTICS,
+                   10:Service.PCH,
+                   11:Service.THORACIC,
+                   12:Service.ANIR,
+                   13:Service.CRITCARE,
+                   14:Service.HARDING,
+                   15:Service.OTHER }
 
 # Resident Class
 class Resident():
@@ -36,11 +61,27 @@ class Resident():
         if year >= 3:
             self.type = Type.SENIOR
 
+# New resident for database style structure
+class DBResident():
+
+    def __init__(self, assignment, month):
+        self.resNo = assignment.res.id
+        self.noCallDays = assignment.res.noCallDays
+        self.callDays = []
+        self.service = TakesCall.mapServices[assignment.onservice]
+        self.year = assignment.res.year
+        self.type = Type.JUNIOR if assignment.res.resType=="Junior" else Type.SENIOR
+        PTOdates = assignment.res.PTO.filter(date__month=month)
+        days = []
+        for DO in PTOdates:
+            days.append(DO.date.day)
+        self.PTO = days
 
 class Scheduler():
 
     def __init__(self, year, month):
         self.residents = []
+        self.month = month
         c = calendar.Calendar(calendar.SUNDAY)
         self.calendar = np.array(c.monthdayscalendar(year,month))
         self.monthName = calendar.month_name[month]
@@ -53,6 +94,10 @@ class Scheduler():
 
     # Add a resident to the residents array in the Scheduler object
     def addResident(self, res):
+        self.residents.append(res)
+
+    def addDBResident(self, assignment):
+        res = DBResident(assignment, self.month)
         self.residents.append(res)
 
     # Unravel all the reaidents into tracking arrays, this will help parse and debug

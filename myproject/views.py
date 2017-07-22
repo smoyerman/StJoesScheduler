@@ -2,8 +2,10 @@ from django.http import Http404
 from django.template import Template, Context
 from django.shortcuts import render_to_response
 from myproject import Config
+import scheduler.models as smodels
+from itertools import chain
 
-July = [
+monthRes = [
     # First
     (Config.Service.GS_GOLD, 1),
     (Config.Service.TRAUMA, 1),
@@ -42,6 +44,7 @@ def moveMonths(month,year):
     return nextMonth, nextYear, lastMonth, lastYear
 
 def generate_schedule(request,year,month):
+    tc = Config.TakesCall
     success = False
     while (not success):
         try:
@@ -51,10 +54,13 @@ def generate_schedule(request,year,month):
             raise Http404()
         if not 1 <= month <= 12:
             raise Http404()
-        s = Config.Scheduler(int(year), int(month))
+        s = Config.Scheduler(year, month)
+        assignments = smodels.Service.objects.filter(month=month, year=year, onservice__in=tc.allCall)
+        othAss = smodels.Service.objects.filter(month=month, year=year, onservice__in=tc.jrCall)
+        allAssignments = list(chain(assignments,othAss))
         # Arrange residents in a meaningful way
-        for i, j in enumerate(July):
-            s.addResident(Config.Resident(j[0],j[1],i))
+        for assignment in allAssignments:
+            s.addDBResident(assignment)
         s.unRavelResidents()
 
         # Put seniors on Trauma
