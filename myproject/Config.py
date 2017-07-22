@@ -136,7 +136,7 @@ class Scheduler():
                     ctr += 1
                 if i-1 > 0:
                     self.addCallDay(i-1, self.TS[ctr % len(self.TS)])
-                    self.hasSenior[i] = 1
+                    self.hasSenior[i-1] = 1
                     if len(self.TS) > 2:
                         ctr += 1
 
@@ -181,14 +181,15 @@ class Scheduler():
                         self.hasSenior[i] = 1
                         weekendSeniors.append(self.residents[pull])
                 if i+1 <= self.daysInMonth:
-                    push = pull + 1
-                    push = push % thirdAndfourth
-                    if self.checkRules(self.Seniors[push], i+1):
-                        if not self.Services[pull] == self.Services[push]:
-                            self.addCallDay(i+1,self.Seniors[push])
-                            self.hasSenior[i+1] = 1
-                            weekendSeniors.append(self.residents[push])
-                    pull = push
+                    if not self.hasSenior[i+1]:
+                        push = pull + 1
+                        push = push % thirdAndfourth
+                        if self.checkRules(self.Seniors[push], i+1):
+                            if not self.Services[pull] == self.Services[push]:
+                                self.addCallDay(i+1,self.Seniors[push])
+                                self.hasSenior[i+1] = 1
+                                weekendSeniors.append(self.residents[push])
+                        pull = push
 
     # Function to place seniors in remaining days, giving preference to older
     def placeSeniors(self):

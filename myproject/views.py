@@ -46,6 +46,7 @@ def moveMonths(month,year):
 def generate_schedule(request,year,month):
     tc = Config.TakesCall
     success = False
+    yearmo = int(year + month)
     while (not success):
         try:
             year = int(year)
@@ -53,6 +54,8 @@ def generate_schedule(request,year,month):
         except:
             raise Http404()
         if not 1 <= month <= 12:
+            raise Http404()
+        if yearmo < 20178:
             raise Http404()
         s = Config.Scheduler(year, month)
         assignments = smodels.Service.objects.filter(month=month, year=year, onservice__in=tc.allCall)
@@ -75,6 +78,9 @@ def generate_schedule(request,year,month):
         # Place all the juniors
         s.placeWeekendJuniors()
         success = s.placeJuniors()
+
+        #self.callAssignments
+        #self.resNo
 
     resSchedule = s.returnResidents()
     nextMonth, nextYear, lastMonth, lastYear = moveMonths(month,year)
