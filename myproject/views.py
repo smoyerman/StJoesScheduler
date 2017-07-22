@@ -59,7 +59,7 @@ def generate_schedule(request,year,month):
             raise Http404()
         s = Config.Scheduler(year, month)
         assignments = smodels.Service.objects.filter(month=month, year=year, onservice__in=tc.allCall)
-        othAss = smodels.Service.objects.filter(month=month, year=year, onservice__in=tc.jrCall)
+        othAss = smodels.Service.objects.filter(month=month, year=year, onservice__in=tc.jrCall).filter(res__resType="Junior")
         allAssignments = list(chain(assignments,othAss))
         # Arrange residents in a meaningful way
         for assignment in allAssignments:

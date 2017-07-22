@@ -263,7 +263,7 @@ class Scheduler():
     # Check all the rules to see if a person can be put on this day
     def checkRulesJr(self, jrInd, day):
         jr = self.residents[jrInd]
-        if self.check48hours(jr,day) and self.checkBacktoBackWeekends(jr,day) and self.checkPTO() and self.checkMatchingSenior(jr,day) and self.checkWeekend(jr,day):
+        if self.check48hours(jr,day) and self.checkBacktoBackWeekends(jr,day) and self.checkPTO(jr, day) and self.checkMatchingSenior(jr,day) and self.checkWeekend(jr,day):
             return True
         else:
             return False
@@ -315,7 +315,7 @@ class Scheduler():
     # Check all the rules to see if a person can be put on this day
     def checkRules(self, srInd, day):
         sr = self.residents[srInd]
-        if self.check48hours(sr,day) and self.checkBacktoBackWeekends(sr,day) and self.checkPTO() and self.checkWeekend(sr,day):
+        if self.check48hours(sr,day) and self.checkBacktoBackWeekends(sr,day) and self.checkPTO(sr,day) and self.checkWeekend(sr,day):
             return True
         else:
             return False
@@ -356,7 +356,9 @@ class Scheduler():
         return True
 
     # Check if giving them their PTO - can add this in later, easy
-    def checkPTO(self):
+    def checkPTO(self, sr, day):
+        if day in sr.PTO:
+            return False
         return True
 
     # Check if there's at least 48 hours between calls
