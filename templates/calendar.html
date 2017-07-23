@@ -14,12 +14,22 @@ body {
     margin: 50px;
 }
 
-div {
+div.schedule {
     background: rgba(0, 0, 0, .1);
     border-radius: 5px;
     box-sizing: border-box;
     padding: 15px;
     width: 1050px;
+    float:left;
+}
+
+div.key {
+    border-radius: 5px;
+    box-sizing: border-box;
+    padding: 10px;
+    margin-left: 20px;
+    margin-top:30px;
+    float:left;
 }
 
 header {
@@ -79,13 +89,67 @@ tr:first-child td {
     box-shadow: 0 2px 6px rgba(0, 0, 0, .5) inset;
 }
 
+/* Trauma */
+span.Trauma {
+    background-color: red;
+}
+
+/* Hepato */
+span.Hepatobiliary {
+    background-color: #9ACD32;
+}
+
+/* Orange */
+span.Orange {
+    background-color: orange;
+}
+
+/* Blue */
+span.Blue {
+    background-color: #6495ED;
+}
+
+/* Gold */
+span.Gold {
+    background-color: gold;
+}
+
+/* Breast */
+span.Breast {
+    background-color: #FF69B4;
+}
+
+/* Breast */
+span.Colorectal {
+    background-color: #000000;
+    color: #ffffff;
+}
+
+/* PCH */
+span.PCH {
+    background-color: #BA55D3;
+}
+
+/* Vascular */
+span.Vascular {
+    background-color: #FFE4C4;
+}
+
 </style>
 
 </head>
 
 <body>
 
-<div>
+<!-- 
+TODO: 
+Add key 
+Add counts for residents (indiv.)
+Add counts for all (seniors)
+Add button to remake schedule (seniors)
+-->
+
+<div class="schedule">
 
   <header>
       <button onclick="location.href='http://stjoesscheduler.com/schedule/{{lastYear}}/{{lastMonth}}'">«</button>
@@ -108,8 +172,8 @@ tr:first-child td {
                             {% if day.0 %}
                             <td>
                                 {{ day.0 }}<br />
-                                {% for res in day.1 %}
-                                {{ res }}<br />
+                                {% for res, service in day.1 %}
+                                <span id="{{service.onservice}}" class="{{service.get_onservice_display}}"><b>&nbsp;{{ res }}&nbsp;</b></span><br />
                                 {% endfor %}
                             </td>
                             {% else %}
@@ -119,6 +183,18 @@ tr:first-child td {
                     </tr>
                     {% endfor %}
                     </table>
+              </div>
+
+              <div class="key">
+                  <b>Service Key</b><br /><br />
+                  <span class="Trauma">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;&nbsp;Trauma<br /><br />
+                  <span class="Gold">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;&nbsp;Gen Surg Gold<br /><br />
+                  <span class="Blue">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;&nbsp;Gen Surg Blue<br /><br />
+                  <span class="Orange">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;&nbsp;Gen Surg Orange<br /><br />
+                  <span class="Colorectal">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;&nbsp;Colorectal<br /><br />
+                  <span class="Vascular">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;&nbsp;Vascular<br /><br />
+                  <span class="Breast">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;&nbsp;Breast<br /><br />
+                  <span class="Hepatobiliary">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;&nbsp;Hepatobiliary<br /><br />
               </div>
       </body>
 </html>
