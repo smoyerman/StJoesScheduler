@@ -66,7 +66,8 @@ class DBResident():
 
     def __init__(self, assignment, month):
         self.resNo = assignment.res.id
-        self.noCallDays = assignment.res.noCallDays
+        self.noCallDays = 0 
+        self.weekendCallDays = 0
         self.callDays = []
         self.service = TakesCall.mapServices[assignment.onservice]
         self.year = assignment.res.year
@@ -103,7 +104,9 @@ class Scheduler():
 
         # Place the seniors everywhere
         self.placeSeniors()
-        self.completeSeniors()
+        success = self.completeSeniors()
+        if not success:
+            return success
 
         # Place all the juniors
         self.placeWeekendJuniors()
@@ -146,7 +149,7 @@ class Scheduler():
                     self.addCallDay(i,self.TS[0])
                     self.hasSenior[i] = 1
         elif len(self.TS) == 2:
-            ctr = 0
+            ctr = 1
             for i in self.calendar[:,0]:
                 if i > 0:
                     self.addCallDay(i, self.TS[ctr % len(self.TS)])
@@ -240,6 +243,7 @@ class Scheduler():
                     self.addCallDay(i,self.Seniors[lowest])
                     self.hasSenior[i] = 1
                 else:
+                    numTries = 0
                     unFilled = True
                     while(unFilled):
                         if self.checkRules(self.Seniors[j], i):
@@ -249,7 +253,11 @@ class Scheduler():
                             j += 1
                         else:
                             j += 1
+                            numTries += 1
                         j = j % len(self.Seniors)
+                        if numTries > len(self.Seniors):
+                            return False
+        return True
 
     # Place the juniors into the call pool
     def placeJuniors(self):

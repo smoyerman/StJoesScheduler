@@ -58,6 +58,11 @@ def returnResidentSchedule(month, year, s):
         resSchedule.append(weekly)
     return resSchedule
 
+def updateResDays(s):
+    for res in s.residents:
+        resmodel = smodels.Resident.objects.get(id=res.resNo)
+        resmodel.noCallDays += res.noCallDays
+        resmodel.save()
 
 def generate_schedule(request,year,month):
     tc = Config.TakesCall
@@ -77,7 +82,6 @@ def generate_schedule(request,year,month):
         days = smodels.Day.objects.filter(date__month=month, date__year=year)
         s = Config.Scheduler(year, month)
         if days:
-            success = True
             resSchedule = returnResidentSchedule(month, year, s)
             nextMonth, nextYear, lastMonth, lastYear = moveMonths(month,year)
             templateVars = { "schedule" : resSchedule,
@@ -94,15 +98,16 @@ def generate_schedule(request,year,month):
         # Arrange residents in a meaningful way
         success = s.scheduleMonth(allAssignments)
         
-        # Save this schedule
-        for i in range(1,s.daysInMonth+1):
-            d = datetime.date(day=i, month=month, year=year)
-            dy = smodels.Day(date=d)
-            dy.save()
-            for res in s.callAssignments[i]:
-                r = smodels.Resident.objects.get(id=res.resNo)
-                dy.residents.add(r)
+    # Save this schedule
+    for i in range(1,s.daysInMonth+1):
+        d = datetime.date(day=i, month=month, year=year)
+        dy = smodels.Day(date=d)
+        dy.save()
+        for res in s.callAssignments[i]:
+            r = smodels.Resident.objects.get(id=res.resNo)
+            dy.residents.add(r)
 
+    updateResDays(s)
     resSchedule = returnResidentSchedule(month, year, s)
     nextMonth, nextYear, lastMonth, lastYear = moveMonths(month,year)
     templateVars = { "schedule" : resSchedule,
