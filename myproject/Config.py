@@ -92,6 +92,24 @@ class Scheduler():
         self.hasSenior = np.zeros(self.daysInMonth+1)
         self.hasJunior = np.zeros(self.daysInMonth+1)
 
+    def scheduleMonth(self, allAssignments):
+        for assignment in allAssignments:
+            self.addDBResident(assignment)
+        self.unRavelResidents()
+        # Put seniors on Trauma
+        self.getTraumaSeniors()
+        self.assignTraumaSeniors()
+        self.assignWeekendSeniors()
+
+        # Place the seniors everywhere
+        self.placeSeniors()
+        self.completeSeniors()
+
+        # Place all the juniors
+        self.placeWeekendJuniors()
+        success = self.placeJuniors()
+        return success
+
     # Add a resident to the residents array in the Scheduler object
     def addResident(self, res):
         self.residents.append(res)
