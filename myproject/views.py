@@ -4,6 +4,7 @@ from django.shortcuts import render_to_response
 from myproject import Config
 import scheduler.models as smodels
 from itertools import chain
+import datetime
 
 monthRes = [
     # First
@@ -43,6 +44,21 @@ def moveMonths(month,year):
         lastYear -= 1
     return nextMonth, nextYear, lastMonth, lastYear
 
+
+def returnResidentSchedule(month, year, s):
+    resSchedule = []
+    for week in s.calendar:
+        weekly = []
+        for day in week:
+            if day:
+                d = smodels.Day.objects.get(date__month=month, date__year=year, date__day=day)
+                weekly.append([day,[(res.lname + ": PGY" + str(res.year), smodels.Service.objects.get(month=month,year=year,res=res)) for res in d.residents.all()]])
+            else:
+                weekly.append([0,[]])
+        resSchedule.append(weekly)
+    return resSchedule
+
+
 def generate_schedule(request,year,month):
     tc = Config.TakesCall
     success = False
@@ -57,32 +73,37 @@ def generate_schedule(request,year,month):
             raise Http404()
         if yearmo < 20178:
             raise Http404()
+        # Check for pre-generated
+        days = smodels.Day.objects.filter(date__month=month, date__year=year)
         s = Config.Scheduler(year, month)
+        if days:
+            success = True
+            resSchedule = returnResidentSchedule(month, year, s)
+            nextMonth, nextYear, lastMonth, lastYear = moveMonths(month,year)
+            templateVars = { "schedule" : resSchedule,
+                             "monthName" : s.monthName,
+                             "year": year,
+                             "nextYear": nextYear,
+                             "nextMonth": nextMonth,
+                             "lastMonth": lastMonth,
+                             "lastYear": lastYear}
+            return render_to_response("calendar.html",templateVars)
         assignments = smodels.Service.objects.filter(month=month, year=year, onservice__in=tc.allCall)
         othAss = smodels.Service.objects.filter(month=month, year=year, onservice__in=tc.jrCall).filter(res__resType="Junior")
         allAssignments = list(chain(assignments,othAss))
         # Arrange residents in a meaningful way
-        for assignment in allAssignments:
-            s.addDBResident(assignment)
-        s.unRavelResidents()
+        success = s.scheduleMonth(allAssignments)
+        
+        # Save this schedule
+        for i in range(1,s.daysInMonth+1):
+            d = datetime.date(day=i, month=month, year=year)
+            dy = smodels.Day(date=d)
+            dy.save()
+            for res in s.callAssignments[i]:
+                r = smodels.Resident.objects.get(id=res.resNo)
+                dy.residents.add(r)
 
-        # Put seniors on Trauma
-        s.getTraumaSeniors()
-        s.assignTraumaSeniors()
-        s.assignWeekendSeniors()
-
-        # Place the seniors everywhere
-        s.placeSeniors()
-        s.completeSeniors()
-
-        # Place all the juniors
-        s.placeWeekendJuniors()
-        success = s.placeJuniors()
-
-        #self.callAssignments
-        #self.resNo
-
-    resSchedule = s.returnResidents()
+    resSchedule = returnResidentSchedule(month, year, s)
     nextMonth, nextYear, lastMonth, lastYear = moveMonths(month,year)
     templateVars = { "schedule" : resSchedule,
                      "monthName" : s.monthName,
