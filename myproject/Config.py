@@ -140,6 +140,19 @@ class DBScheduler():
         dy = smodels.Day.objects.get(date=datetime.date(month=self.month, year=self.year, day=day))
         dy.residents.add(sr)
 
+    # Function to add a junior to the call schedule for the month
+    def addJr(self, jr, day):
+        self.callAssignments[day].append(jr)
+        jr.noCallDays += 1
+        jr.save()
+        self.hasJunior[day] = 1
+        self.daysPerMonthJr[jr.id] += 1
+        dy = smodels.Day.objects.get(date=datetime.date(month=self.month, year=self.year, day=day))
+        dy.residents.add(jr)
+        if (day in np.reshape(self.calendar[:,5:],-1)) or (day in self.calendar[:,0]):
+            jr.noWkndCallDays += 1
+            jr.save()
+
     # Check same service on same weekend
     def checkSameService(self,res,day):
         services = []
@@ -366,8 +379,24 @@ class DBScheduler():
     def placeJuniors(self):
         jrCall = smodels.Service.objects.filter(month=self.month, year=self.year, onservice__in=self.tc.allCallJr).filter(res__resType="Junior")
         jrCallRes = [serv.res for serv in jrCall]
-        random.shuffle(srCallRes)
-
+        random.shuffle(jrCallRes)
+        resNo = 0
+        for i in range(1, self.daysInMonth+1):
+            if not self.hasJunior[i]:
+                resNo = resNo % len(jrCallRes)
+                if self.checkRules(jrCallRes[resNo], i) and (self.daysPerMonthJr[jrCallRes[resNo].id] < 4):
+                    self.addJr(jrCallRes[resNo], i)
+                    resNo += 1
+                else:
+                    swappage = 0
+                    while (not self.checkRules(jrCallRes[resNo], i)) or (self.daysPerMonthJr[jrCallRes[resNo].id] >= 4):
+                        if swappage == len(jrCallRes):
+                            break 
+                        jrCallRes[resNo],jrCallRes[(resNo+swappage) % len(jrCallRes)] = jrCallRes[(resNo+swappage) % len(jrCallRes)], jrCallRes[resNo]
+                        swappage += 1
+                    self.addJr(jrCallRes[resNo], i)
+                    resNo += 1
+        return True
 
     # Function to place the rest of the seniors
     def placeSeniors(self):
@@ -385,7 +414,7 @@ class DBScheduler():
                     swappage = 0
                     while (not self.checkRules(srCallRes[resNo], i)) or (self.daysPerMonthSr[srCallRes[resNo].id] >= 4):
                         if swappage == len(srCallRes):
-                            return False
+                            break
                         srCallRes[resNo],srCallRes[(resNo+swappage) % len(srCallRes)] = srCallRes[(resNo+swappage) % len(srCallRes)], srCallRes[resNo]
                         swappage += 1
                     self.addSr(srCallRes[resNo], i)
