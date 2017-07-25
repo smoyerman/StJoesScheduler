@@ -72,10 +72,11 @@ td {
     color: #444;
     line-height: 22px;
     text-align: center;
-    height: 80px;
+    height: 85px;
     width: 150px;
     vertical-align: text-top;
     padding-top: 6px;
+    padding-bottom: 5px;
 }
 
 tr:first-child td {
@@ -164,7 +165,11 @@ Add button to remake schedule (seniors)
   <header>
       <button onclick="location.href='http://stjoesscheduler.com/schedule/{{lastYear}}/{{lastMonth}}'">«</button>
           <h2>{{monthName}} {{year}}</h2>
+          {% if nextMonth > 11 %}
+          <button onclick="location.href='#'">»</button>
+          {% else %}
           <button onclick="location.href='http://stjoesscheduler.com/schedule/{{nextYear}}/{{nextMonth}}'">»</button>
+          {% endif %}
                     </header>
                     <table>
                       <tr>

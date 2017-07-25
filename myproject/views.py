@@ -1,9 +1,10 @@
 from django.http import Http404 
+import calendar
+import numpy as np
 from django.template import Template, Context
 from django.shortcuts import render_to_response
 from myproject import Config
 import scheduler.models as smodels
-from itertools import chain
 import datetime
 
 monthRes = [
@@ -45,14 +46,16 @@ def moveMonths(month,year):
     return nextMonth, nextYear, lastMonth, lastYear
 
 
-def returnResidentSchedule(month, year, s):
+def returnResidentSchedule(month, year):
     resSchedule = []
-    for week in s.calendar:
+    c = calendar.Calendar(calendar.SUNDAY)
+    cal = np.array(c.monthdayscalendar(year,month))
+    for week in cal:
         weekly = []
         for day in week:
             if day:
                 d = smodels.Day.objects.get(date__month=month, date__year=year, date__day=day)
-                weekly.append([day,[(res.lname + ": PGY" + str(res.year), smodels.Service.objects.get(month=month,year=year,res=res)) for res in d.residents.all()]])
+                weekly.append([day,[(res.lname + ": PGY" + str(res.year), smodels.Service.objects.get(month=month,year=year,res=res)) for res in d.residents.all().order_by('-year')]])
             else:
                 weekly.append([0,[]])
         resSchedule.append(weekly)
@@ -64,8 +67,38 @@ def updateResDays(s):
         resmodel.noCallDays += res.noCallDays
         resmodel.save()
 
+def checkStart(month,year):
+    if month >= 7:
+        return str(year) + "-07-01"
+    else:
+        return str(year-1) + "-07-01" 
+
+# Checks number of PTO days requested so far (rough) and if there are any PTO conflicts. 
+def checkPTOconflicts(month, year):
+    # check total PTO per resident up till this point
+    nextMonth = month + 1
+    nextYear = year
+    if nextMonth > 12:
+        nextYear = year + 1
+        nextMonth = nextMonth % 12
+    warningDayCount = []
+    for res in Resident.objects.all():
+        daysToDate = len(res.PTO.filter(date__range=[checkStart(month,year), str(nextYear) + "-" + str(nextMonth) + "-01"]))
+        if daysToDate > 15:
+            warningDayCount.append((res,daysToDate))
+    # Check same service requested
+    services = smodels.Service.objects.filter(month = month)
+    noServices = max([service.onservice for service in services])
+    for i in range(noServices):
+        resOn = []
+        for service in services.filter(onservice = i):
+            resOn.append(service.res)
+        dates = []
+        for res in resOn:
+            dates.extend(res.PTO.all())
+
+
 def generate_schedule(request,year,month):
-    tc = Config.TakesCall
     success = False
     yearmo = int(year + month)
     while (not success):
@@ -80,35 +113,32 @@ def generate_schedule(request,year,month):
             raise Http404()
         # Check for pre-generated
         days = smodels.Day.objects.filter(date__month=month, date__year=year)
-        s = Config.Scheduler(year, month)
         if days:
-            resSchedule = returnResidentSchedule(month, year, s)
+            resSchedule = returnResidentSchedule(month, year)
             nextMonth, nextYear, lastMonth, lastYear = moveMonths(month,year)
             templateVars = { "schedule" : resSchedule,
-                             "monthName" : s.monthName,
+                             "monthName" : calendar.month_name[month],
                              "year": year,
                              "nextYear": nextYear,
                              "nextMonth": nextMonth,
                              "lastMonth": lastMonth,
                              "lastYear": lastYear}
             return render_to_response("calendar.html",templateVars)
-        assignments = smodels.Service.objects.filter(month=month, year=year, onservice__in=tc.allCall)
-        othAss = smodels.Service.objects.filter(month=month, year=year, onservice__in=tc.jrCall).filter(res__resType="Junior")
-        allAssignments = list(chain(assignments,othAss))
         # Arrange residents in a meaningful way
-        success = s.scheduleMonth(allAssignments)
+        s = Config.DBScheduler(year, month)
+        success = s.scheduleMonth()
         
     # Save this schedule
-    for i in range(1,s.daysInMonth+1):
+    """for i in range(1,s.daysInMonth+1):
         d = datetime.date(day=i, month=month, year=year)
         dy = smodels.Day(date=d)
         dy.save()
         for res in s.callAssignments[i]:
             r = smodels.Resident.objects.get(id=res.resNo)
-            dy.residents.add(r)
+            dy.residents.add(r)"""
 
-    updateResDays(s)
-    resSchedule = returnResidentSchedule(month, year, s)
+    #updateResDays(s)
+    resSchedule = returnResidentSchedule(month, year)
     nextMonth, nextYear, lastMonth, lastYear = moveMonths(month,year)
     templateVars = { "schedule" : resSchedule,
                      "monthName" : s.monthName,
@@ -119,4 +149,4 @@ def generate_schedule(request,year,month):
                      "lastYear": lastYear}
 
     return render_to_response("calendar.html",templateVars)
-#    return HttpResponse("Hello world")
+

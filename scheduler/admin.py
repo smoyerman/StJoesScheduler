@@ -12,5 +12,5 @@ class DayAdmin(admin.ModelAdmin):
 
 # Register your models here.
 admin.site.register(Resident, ResidentAdmin)
-admin.site.register(Service, ServiceAdmin)
+#admin.site.register(Service, ServiceAdmin)
 admin.site.register(Day, DayAdmin)
