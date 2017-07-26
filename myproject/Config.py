@@ -395,8 +395,9 @@ class DBScheduler():
                             break 
                         jrCallRes[resNo],jrCallRes[(resNo+swappage) % len(jrCallRes)] = jrCallRes[(resNo+swappage) % len(jrCallRes)], jrCallRes[resNo]
                         swappage += 1
-                    self.addJr(jrCallRes[resNo], i)
-                    resNo += 1
+                    if swappage < len(jrCallRes):
+                        self.addJr(jrCallRes[resNo], i)
+                        resNo += 1
         return True
 
     # Function to place the rest of the seniors
@@ -418,8 +419,9 @@ class DBScheduler():
                             break
                         srCallRes[resNo],srCallRes[(resNo+swappage) % len(srCallRes)] = srCallRes[(resNo+swappage) % len(srCallRes)], srCallRes[resNo]
                         swappage += 1
-                    self.addSr(srCallRes[resNo], i)
-                    resNo += 1
+                    if swappage < len(srCallRes):
+                        self.addSr(srCallRes[resNo], i)
+                        resNo += 1
         return True
 
     # Function to place weekend seniors
