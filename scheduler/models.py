@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 
 # Requested day off by resident
 class DayOff(models.Model):
@@ -23,6 +24,7 @@ class Resident(models.Model):
     noCallDays = models.IntegerField(default=0, verbose_name="Number of Call Days")
     noWkndCallDays = models.IntegerField(default=0,verbose_name="Number of Weekend Call Days")
     resType = models.CharField(max_length=16, blank=True)
+    #user = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True)
 
     # Auto write junior or senior
     def save(self, *args, **kwargs):
@@ -58,6 +60,10 @@ class Service(models.Model):
     year = models.IntegerField(choices = YEAR_CHOICES, verbose_name="Year")
     onservice = models.IntegerField(choices = SERVICE_CHOICES, verbose_name ="Service")
     res = models.ForeignKey(Resident, verbose_name="Resident on Service")
+    callDays = models.IntegerField(default=0, verbose_name="Call Days This Month")
+    callDaysYTD = models.IntegerField(default=0, verbose_name="Call Days YTD")
+    wkndcallDays = models.IntegerField(default=0, verbose_name="Weekend Call Days This Month")
+    wkndcallDaysTYD = models.IntegerField(default=0, verbose_name="Weekend Call Days YTD")
 
     def __str__(self):
         return u'%s %s' % (self.month, self.onservice)

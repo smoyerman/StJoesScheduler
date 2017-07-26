@@ -163,11 +163,11 @@ Add button to remake schedule (seniors)
 <div class="schedule">
 
   <header>
+      {% if lastMonth >= 8 %}
       <button onclick="location.href='http://stjoesscheduler.com/schedule/{{lastYear}}/{{lastMonth}}'">«</button>
+      {% endif %}
           <h2>{{monthName}} {{year}}</h2>
-          {% if nextMonth > 11 %}
-          <button onclick="location.href='#'">»</button>
-          {% else %}
+          {% if nextMonth <= 10 %}
           <button onclick="location.href='http://stjoesscheduler.com/schedule/{{nextYear}}/{{nextMonth}}'">»</button>
           {% endif %}
                     </header>

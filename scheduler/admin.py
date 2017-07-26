@@ -8,9 +8,9 @@ class ServiceAdmin(admin.ModelAdmin):
     list_display = ('month','onservice','res')
 
 class DayAdmin(admin.ModelAdmin):
-    list_display = ('date','residents')
+    list_display = ('date', 'residents')
 
 # Register your models here.
 admin.site.register(Resident, ResidentAdmin)
 #admin.site.register(Service, ServiceAdmin)
-admin.site.register(Day, DayAdmin)
+admin.site.register(Day)

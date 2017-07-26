@@ -128,6 +128,7 @@ class DBScheduler():
         success = self.placeSeniors()
         self.tryFitSrs()
         self.placeJuniors()
+        self.tryFitJrs()
         return True
 
     # Function to add a senior to the call schedule for the month
@@ -447,6 +448,25 @@ class DBScheduler():
                     thirdFourth[i].save()
                 i += 1
         
+    # Check jr spots
+    def tryFitJrs(self):
+        jrCallWknd = smodels.Service.objects.filter(month=self.month, year=self.year, onservice__in=self.tc.allCallJr).filter(res__resType="Junior")
+        jrCallWkndRes = [serv.res for serv in jrCallWknd]
+        for i in range(1,self.daysInMonth+1):
+            if not self.hasJunior[i]:
+                sorted_days = sorted(self.daysPerMonthJr.items(), key=operator.itemgetter(1))
+                for resid, days in sorted_days:
+                    if self.checkRules(smodels.Resident.objects.get(id=resid),i):
+                        self.addJr(smodels.Resident.objects.get(id=resid), i)
+                        break
+        sorted_days = sorted(self.daysPerMonthJr.items(), key=operator.itemgetter(1))
+        for resid, days in sorted_days:
+            while days < 4:
+                trialDay = random.randint(1,self.daysInMonth)
+                if self.checkRules(smodels.Resident.objects.get(id=resid),trialDay):
+                    self.addJr(smodels.Resident.objects.get(id=resid), trialDay)
+                    days += 1
+
     # If there are any days without seniors, try very hard to place them
     def tryFitSrs(self):
         srCallWknd = smodels.Service.objects.filter(month=self.month, year=self.year, onservice__in=self.tc.allCall).filter(res__resType="Senior")
@@ -468,7 +488,7 @@ class DBScheduler():
                 if i > 0:
                     self.addSr(traumaSrs[0], i)
         elif len(traumaSrs) >= 2:
-            ctr = 1
+            ctr = 0
             for i in self.calendar[:,0]:
                 if i > 0:
                     self.addSr(traumaSrs[ctr % len(traumaSrs)], i)
