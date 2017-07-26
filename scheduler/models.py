@@ -24,7 +24,7 @@ class Resident(models.Model):
     noCallDays = models.IntegerField(default=0, verbose_name="Number of Call Days")
     noWkndCallDays = models.IntegerField(default=0,verbose_name="Number of Weekend Call Days")
     resType = models.CharField(max_length=16, blank=True)
-    #user = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True)
 
     # Auto write junior or senior
     def save(self, *args, **kwargs):
@@ -73,3 +73,5 @@ class Day(models.Model):
     date = models.DateField(verbose_name="On Call Day")
     residents  = models.ManyToManyField(Resident, verbose_name="Residents on Call") 
 
+    def get_residents(self):
+        return "\n".join([r.lname for r in self.residents.all()])
