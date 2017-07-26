@@ -464,8 +464,10 @@ class DBScheduler():
             while days < 4:
                 trialDay = random.randint(1,self.daysInMonth)
                 if self.checkRules(smodels.Resident.objects.get(id=resid),trialDay):
-                    self.addJr(smodels.Resident.objects.get(id=resid), trialDay)
-                    days += 1
+                    numRes = smodels.Day.objects.get(date=datetime.date(self.year,self.month,trialDay)).residents.all()
+                    if len(numRes) < 3:
+                        self.addJr(smodels.Resident.objects.get(id=resid), trialDay)
+                        days += 1
 
     # If there are any days without seniors, try very hard to place them
     def tryFitSrs(self):
