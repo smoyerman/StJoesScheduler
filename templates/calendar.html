@@ -1,9 +1,6 @@
-<!doctype html>
-<html>
-<head>
+{% extends "base.html" %}
 
-<meta charset="utf-8">
-
+{% block css %}
 <link href='http://fonts.googleapis.com/css?family=PT+Sans:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
 <link href='http://fonts.googleapis.com/css?family=PT+Sans+Narrow:400,700' rel='stylesheet' type='text/css'>
 
@@ -148,9 +145,11 @@ span.Harding {
 
 </style>
 
-</head>
+{% endblock css %}
 
-<body>
+{% block title %}{{ monthName }} - {{ year }}{% endblock title %}
+
+{% block content %}
 
 <!-- 
 TODO: 
@@ -170,8 +169,8 @@ Add button to remake schedule (seniors)
           {% if nextMonth <= 10 %}
           <button onclick="location.href='http://stjoesscheduler.com/schedule/{{nextYear}}/{{nextMonth}}'">»</button>
           {% endif %}
-                    </header>
-                    <table>
+                </header>
+                <table>
                       <tr>
                           <td>Sunday</td>
                           <td>Monday</td>
@@ -197,8 +196,8 @@ Add button to remake schedule (seniors)
                         {% endfor %}
                     </tr>
                     {% endfor %}
-                    </table>
-              </div>
+                </table>
+</div>
 
               <div class="key">
                   <b>Service Key</b><br /><br />
@@ -213,6 +212,5 @@ Add button to remake schedule (seniors)
                   <span class="Harding">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;&nbsp;Harding<br /><br />
                   <span class="Anesthesia" style="border: 1px solid black;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;&nbsp;Anesthesia<br /><br />
               </div>
-      </body>
-</html>
 
+{% endblock content %}
