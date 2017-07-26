@@ -2,7 +2,7 @@ from django.http import Http404
 import calendar
 import numpy as np
 from django.template import Template, Context
-from django.shortcuts import render_to_response
+from django.shortcuts import render_to_response, redirect
 from myproject import Config
 import scheduler.models as smodels
 import datetime
@@ -97,7 +97,14 @@ def checkPTOconflicts(month, year):
         for res in resOn:
             dates.extend(res.PTO.all())
 
+# Function for homepage - redirects to schedule of current month
+def homepage(request):
+    now = datetime.datetime.now()
+    if now.year == 2017 and now.month == 7:
+        return redirect('/schedule/2017/8/')
+    return redirect('/schedule/'+str(now.year)+'/'+str(now.month))
 
+# Main function to generate scheduling page
 def generate_schedule(request,year,month):
     success = False
     yearmo = int(year + month)

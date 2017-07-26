@@ -15,9 +15,10 @@ Including another URLconf
 """
 from django.conf.urls import url
 from django.contrib import admin
-from myproject.views import generate_schedule 
+from myproject.views import generate_schedule, homepage
 
 urlpatterns = [
+    url(r'^$', homepage),
     url(r'^admin/', admin.site.urls),
     url(r'^schedule/(\d{4})/(\d{1,2})/$', generate_schedule),
 ]
