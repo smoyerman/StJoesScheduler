@@ -2,7 +2,7 @@ from django.http import Http404
 import calendar
 import numpy as np
 from django.template import Template, Context
-from django.shortcuts import render_to_response, redirect
+from django.shortcuts import render, redirect
 from myproject import Config
 import scheduler.models as smodels
 import datetime
@@ -130,20 +130,11 @@ def generate_schedule(request,year,month):
                              "nextMonth": nextMonth,
                              "lastMonth": lastMonth,
                              "lastYear": lastYear}
-            return render_to_response("calendar.html",templateVars)
+            return render(request,"calendar.html",templateVars)
         # Arrange residents in a meaningful way
         s = Config.DBScheduler(year, month)
         success = s.scheduleMonth()
         
-    # Save this schedule
-    """for i in range(1,s.daysInMonth+1):
-        d = datetime.date(day=i, month=month, year=year)
-        dy = smodels.Day(date=d)
-        dy.save()
-        for res in s.callAssignments[i]:
-            r = smodels.Resident.objects.get(id=res.resNo)
-            dy.residents.add(r)"""
-
     #updateResDays(s)
     resSchedule = returnResidentSchedule(month, year)
     nextMonth, nextYear, lastMonth, lastYear = moveMonths(month,year)
@@ -155,5 +146,5 @@ def generate_schedule(request,year,month):
                      "lastMonth": lastMonth,
                      "lastYear": lastYear}
 
-    return render_to_response("calendar.html",templateVars)
+    return render(request,"calendar.html",templateVars)
 

@@ -6,10 +6,10 @@
 
 <style>
 
-body {
+/*body {
     line-height: 1;
     margin: 50px;
-}
+}*/
 
 div.schedule {
     background: rgba(0, 0, 0, .1);
@@ -18,6 +18,8 @@ div.schedule {
     padding: 15px;
     width: 1050px;
     float:left;
+    margin-top:50px;
+    margin-left:50px;
 }
 
 div.key {
@@ -148,6 +150,35 @@ span.Harding {
 {% endblock css %}
 
 {% block title %}{{ monthName }} - {{ year }}{% endblock title %}
+
+{% block header %}
+
+    {% if user.is_authenticated %}
+        <header class="header-basic-light">
+
+            <div class="header-limiter">
+
+                <h1>Hello, {{user.first_name}} {{user.last_name}}</h1>
+
+                    <nav>
+                        <a href="#" class="selected">Schedule</a>
+                        {% if user.is_staff %}
+                        <a href="/admin/">Admin</a>
+                        {% endif %}
+                        <a href="#">PTO Requests</a>
+                        <a href="/logout/">Logout</a>
+                    </nav>
+
+                <!--<nav>
+                <a href="/login/">Login</a>
+                </nav>-->
+
+            </div>
+
+        </header>
+    {% endif %}
+
+{% endblock header %}
 
 {% block content %}
 
