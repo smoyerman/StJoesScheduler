@@ -7,31 +7,7 @@ from myproject import Config
 import scheduler.models as smodels
 import datetime
 
-monthRes = [
-    # First
-    (Config.Service.GS_GOLD, 1),
-    (Config.Service.TRAUMA, 1),
-    (Config.Service.GS_BLUE, 1),
-    (Config.Service.COLORECTAL, 1),
-    (Config.Service.BREAST, 1),
-    (Config.Service.GS_ORANGE, 1),
-    # Second
-    (Config.Service.HPB_TRANSPLANT, 2),
-    # Third
-    (Config.Service.TRAUMA, 3),
-    (Config.Service.GS_GOLD, 3),
-    (Config.Service.GS_BLUE, 3),
-    # Fourth
-    (Config.Service.HPB_TRANSPLANT, 4),
-    (Config.Service.VASCULAR, 4),
-    (Config.Service.COLORECTAL, 4),
-    # Fifth
-    (Config.Service.GS_GOLD, 5),
-    (Config.Service.GS_BLUE, 5),
-    (Config.Service.GS_ORANGE, 5),
-    #(Config.Service.TRAUMA, 5),
-]
-
+# Function to advance and pull back months by 1
 def moveMonths(month,year):
     nextMonth = month + 1
     nextYear = year
@@ -45,19 +21,28 @@ def moveMonths(month,year):
         lastYear -= 1
     return nextMonth, nextYear, lastMonth, lastYear
 
-
+# Takes in a given month and returns the resident schedule for that month
 def returnResidentSchedule(month, year):
     resSchedule = []
     c = calendar.Calendar(calendar.SUNDAY)
     cal = np.array(c.monthdayscalendar(year,month))
-    for week in cal:
+    nextMonth, nextYear, lastMonth, lastYear = moveMonths(month,year)
+    cal2 = np.array(calendar.Calendar(calendar.SUNDAY).monthdayscalendar(lastYear,lastMonth))
+    for j,week in enumerate(cal):
         weekly = []
-        for day in week:
+        for i,day in enumerate(week):
             if day:
                 d = smodels.Day.objects.get(date__month=month, date__year=year, date__day=day)
-                weekly.append([day,[(res.lname + ": PGY" + str(res.year), smodels.Service.objects.get(month=month,year=year,res=res)) for res in d.residents.all().order_by('-year')]])
+                weekly.append([day,[(res.lname + ": PGY" + str(res.year), smodels.Service.objects.get(month=month,year=year,res=res)) for res in d.residents.all().order_by('-year')],[]])
             else:
-                weekly.append([0,[]])
+                if j == 0:
+                    try:
+                        d = smodels.Day.objects.get(date__month=lastMonth, date__year=lastYear, date__day=cal2[-1,i])
+                        weekly.append([0,[(res.lname + ": PGY" + str(res.year), smodels.Service.objects.get(month=month,year=year,res=res)) for res in d.residents.all().    order_by('-year')],[]])
+                    except:
+                        weekly.append([0,[],[]])
+                else:
+                    weekly.append([0,[],[]])
         resSchedule.append(weekly)
     return resSchedule
 
@@ -120,8 +105,16 @@ def generate_schedule(request,year,month):
             raise Http404()
         # Check for pre-generated
         days = smodels.Day.objects.filter(date__month=month, date__year=year)
+        nextMonth, nextYear, lastMonth, lastYear = moveMonths(month,year)
+        daysOff = smodels.DayOff.objects.filter(date__month=month, date__year = year)
         if days:
             resSchedule = returnResidentSchedule(month, year)
+            for day in daysOff:
+                for week in resSchedule:
+                    for d in week:
+                        if d[0] == day.date.day:
+                            d[2] = [r.lname for r in day.resident_set.all()]
+                            break
             nextMonth, nextYear, lastMonth, lastYear = moveMonths(month,year)
             templateVars = { "schedule" : resSchedule,
                              "monthName" : calendar.month_name[month],
@@ -137,7 +130,12 @@ def generate_schedule(request,year,month):
         
     #updateResDays(s)
     resSchedule = returnResidentSchedule(month, year)
-    nextMonth, nextYear, lastMonth, lastYear = moveMonths(month,year)
+    for day in daysOff:
+        for week in resSchedule:
+            for d in week:
+                if d[0] == day.date.day:
+                    d[2] = [r.lname for r in day.resident_set.all()]
+                    break
     templateVars = { "schedule" : resSchedule,
                      "monthName" : s.monthName,
                      "year": year,

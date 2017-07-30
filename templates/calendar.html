@@ -220,16 +220,27 @@ Add button to remake schedule (seniors)
                                 {% for res, service in day.1 %}
                                 <span id="{{service.onservice}}" class="{{service.get_onservice_display}}"><b>&nbsp;{{ res }}&nbsp;</b></span><br />
                                 {% endfor %}
+                                {% if user.is_staff %}
+                                    {% if day.2 %}
+                                        PTO: {% for name in day.2 %}{{name}}{% if not forloop.last %}, {% endif %}{% endfor %}
+                                    {% endif %}
+                                {% endif %}
                             </td>
                             {% else %}
-                            <td></td>
+                            <td>
+                                <br />
+                                {% if user.is_staff %}
+                                    {% for res, service in day.1 %}
+                                    <div style="opacity: 0.6;">&nbsp;{{ res }}&nbsp;<br /></div>
+                                    {% endfor %}
+                                {% endif %}
+                            </td>
                             {% endif %}
                         {% endfor %}
                     </tr>
                     {% endfor %}
                 </table>
 </div>
-
               <div class="key">
                   <b>Service Key</b><br /><br />
                   <span class="Trauma">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;&nbsp;Trauma<br /><br />
@@ -242,6 +253,14 @@ Add button to remake schedule (seniors)
                   <span class="Hepatobiliary">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;&nbsp;Hepatobiliary<br /><br />
                   <span class="Harding">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;&nbsp;Harding<br /><br />
                   <span class="Anesthesia" style="border: 1px solid black;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;&nbsp;Anesthesia<br /><br />
+              </div>
+
+              <div class="key">
+                  {% for key, item in PTOdays.items %}
+                    {% if item %}
+                        <b>{{key}}</b>: {% for i in item %}{{i}}{% if not forloop.last %}, {% endif %}{% endfor %}<br />
+                    {% endif %}
+                  {% endfor %}
               </div>
 
 {% endblock content %}
