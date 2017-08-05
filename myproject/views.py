@@ -6,6 +6,8 @@ from django.shortcuts import render, redirect
 from myproject import Config
 import scheduler.models as smodels
 import datetime
+from django.contrib.auth.models import User
+from django.http import HttpResponse
 
 # Function to advance and pull back months by 1
 def moveMonths(month,year):
@@ -88,6 +90,45 @@ def homepage(request):
     if now.year == 2017 and now.month == 7:
         return redirect('/schedule/2017/8/')
     return redirect('/schedule/'+str(now.year)+'/'+str(now.month))
+
+# Function to update PTO requests
+def update_pto(request,year,month):
+    if request.user.is_authenticated():
+        try:
+            user = request.user
+            r = smodels.Resident.objects.get(user=user)
+        except:
+            return HttpResponse('Unauthorized', status=401)
+    else:
+        return HttpResponse('Unauthorized', status=401)
+    yearmo = int(year + month)
+    try:
+        year = int(year)
+        month = int(month)
+    except:
+        raise Http404()
+    if yearmo < 20178:
+        raise Http404()
+    month2, year2, month0, year0 = moveMonths(month,year)
+    month3, year3, month1, year1 = moveMonths(month2,year2)
+    month4, year4, month2, year2 = moveMonths(month3,year3)
+    month5, year5, month3, year3 = moveMonths(month4,year4)
+    months = [month0, month1, month2, month3, month4, month5]
+    years = [year0, year1, year2, year3, year4, year5]
+    monthNames = [calendar.month_name[month] for month in months]
+    c = calendar.Calendar(calendar.SUNDAY)
+    cal1 = np.array(c.monthdayscalendar(year1,month1))
+    cal2 = np.array(c.monthdayscalendar(year2,month2))
+    cal3 = np.array(c.monthdayscalendar(year3,month3))
+    cal4 = np.array(c.monthdayscalendar(year4,month4))
+    cals = [None, cal1, cal2, cal3, cal4]
+    days = []
+    for year,month in zip(years[1:],months[1:]):
+        days.append(r.PTO.filter(date__month = month, date__year = year)) 
+    ymnamescals = zip(years, months, monthNames, cals)
+    templateVars = { "ymnamescals" : ymnamescals}
+    return render(request,"PTO.html",templateVars)
+
 
 # Main function to generate scheduling page
 def generate_schedule(request,year,month):

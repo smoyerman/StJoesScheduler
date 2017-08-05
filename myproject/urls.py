@@ -15,7 +15,7 @@ Including another URLconf
 """
 from django.conf.urls import url
 from django.contrib import admin
-from myproject.views import generate_schedule, homepage
+from myproject.views import generate_schedule, homepage, update_pto
 from django.conf.urls import include
 
 urlpatterns = [
@@ -23,4 +23,5 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url('^', include('django.contrib.auth.urls')),
     url(r'^schedule/(\d{4})/(\d{1,2})/$', generate_schedule),
+    url(r'^pto/(\d{4})/(\d{1,2})/$', update_pto),
 ]
