@@ -18,7 +18,7 @@ div.schedule {
     padding: 15px;
     width: 1050px;
     float:left;
-    margin-top:50px;
+    margin-top:20px;
     margin-left:50px;
 }
 
@@ -71,7 +71,6 @@ td {
     color: #444;
     line-height: 22px;
     text-align: center;
-    height: 85px;
     width: 150px;
     vertical-align: text-top;
     padding-top: 6px;
@@ -202,7 +201,7 @@ Add button to remake schedule (seniors)
           {% endif %}
                 </header>
                 <table>
-                      <tr>
+                      <tr style="height:20px;">
                           <td>Sunday</td>
                           <td>Monday</td>
                           <td>Tuesday</td>
@@ -255,12 +254,13 @@ Add button to remake schedule (seniors)
                   <span class="Anesthesia" style="border: 1px solid black;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;&nbsp;Anesthesia<br /><br />
               </div>
 
-              <div class="key">
-                  {% for key, item in PTOdays.items %}
-                    {% if item %}
-                        <b>{{key}}</b>: {% for i in item %}{{i}}{% if not forloop.last %}, {% endif %}{% endfor %}<br />
-                    {% endif %}
+              {% if user.is_staff %}            
+                  <div class="key">
+                      <b>PTO Request Conflicts</b><br /><br />
+                  {% for day,residents,service in PTOConflictDays %}
+                  <b>{{ day }}</b>: {% for res in residents %} <span class="{{service.get_onservice_display}}">{{ res.lname }}</span>{% if not forloop.last %},{% endif %} {% endfor %}<br /><br />
                   {% endfor %}
-              </div>
+                  </div>
+              {% endif %}
 
 {% endblock content %}

@@ -54,14 +54,15 @@ def updateResDays(s):
         resmodel.noCallDays += res.noCallDays
         resmodel.save()
 
+# Check start of month day
 def checkStart(month,year):
     if month >= 7:
         return str(year) + "-07-01"
     else:
         return str(year-1) + "-07-01" 
 
-# Checks number of PTO days requested so far (rough) and if there are any PTO conflicts. 
-def checkPTOconflicts(month, year):
+# Checks number of PTO days requested so far (rough)
+def checkPTOcounts(month, year):
     # check total PTO per resident up till this point
     nextMonth = month + 1
     nextYear = year
@@ -73,16 +74,28 @@ def checkPTOconflicts(month, year):
         daysToDate = len(res.PTO.filter(date__range=[checkStart(month,year), str(nextYear) + "-" + str(nextMonth) + "-01"]))
         if daysToDate > 15:
             warningDayCount.append((res,daysToDate))
+
+# Checks if there are any PTO conflicts requested
+def checkPTOConflicts(month, year):
     # Check same service requested
     services = smodels.Service.objects.filter(month = month)
     noServices = max([service.onservice for service in services])
+    daysInMonth = calendar.monthrange(year, month)[1]
+    badDays = []
     for i in range(noServices):
         resOn = []
         for service in services.filter(onservice = i):
             resOn.append(service.res)
-        dates = []
-        for res in resOn:
-            dates.extend(res.PTO.all())
+        dayTracker = [[] for i in range(daysInMonth)]
+        if len(resOn) > 1:
+            for res in resOn:
+                for day in res.PTO.filter(date__month=month,date__year=year):
+                    dayTracker[day.date.day-1].append(res)
+            for i,d in enumerate(dayTracker):
+                if len(d) >= 2:
+                    badDays.append((i+1,d,service))
+    badDays.sort(key=lambda tup: tup[0])
+    return badDays
 
 # Function for homepage - redirects to schedule of current month
 def homepage(request):
@@ -148,6 +161,7 @@ def generate_schedule(request,year,month):
         days = smodels.Day.objects.filter(date__month=month, date__year=year)
         nextMonth, nextYear, lastMonth, lastYear = moveMonths(month,year)
         daysOff = smodels.DayOff.objects.filter(date__month=month, date__year = year)
+        PTOConflictDays = checkPTOConflicts(month, year)
         if days:
             resSchedule = returnResidentSchedule(month, year)
             for day in daysOff:
@@ -163,7 +177,8 @@ def generate_schedule(request,year,month):
                              "nextYear": nextYear,
                              "nextMonth": nextMonth,
                              "lastMonth": lastMonth,
-                             "lastYear": lastYear}
+                             "lastYear": lastYear,
+                             "PTOConflictDays": PTOConflictDays}
             return render(request,"calendar.html",templateVars)
         # Arrange residents in a meaningful way
         s = Config.DBScheduler(year, month)
@@ -183,7 +198,8 @@ def generate_schedule(request,year,month):
                      "nextYear": nextYear,
                      "nextMonth": nextMonth,
                      "lastMonth": lastMonth,
-                     "lastYear": lastYear}
+                     "lastYear": lastYear,
+                     "PTOConflictDays": PTOConflictDays}
 
     return render(request,"calendar.html",templateVars)
 
