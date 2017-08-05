@@ -214,7 +214,7 @@ Add button to remake schedule (seniors)
                     <tr>
                         {% for day in week %}
                             {% if day.0 %}
-                            <td>
+                            <td style="height:75px;">
                                 {{ day.0 }}<br />
                                 {% for res, service in day.1 %}
                                 <span id="{{service.onservice}}" class="{{service.get_onservice_display}}"><b>&nbsp;{{ res }}&nbsp;</b></span><br />
@@ -226,7 +226,7 @@ Add button to remake schedule (seniors)
                                 {% endif %}
                             </td>
                             {% else %}
-                            <td>
+                            <td style="height:75px;">
                                 <br />
                                 {% if user.is_staff %}
                                     {% for res, service in day.1 %}
