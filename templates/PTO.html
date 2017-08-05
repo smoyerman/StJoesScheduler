@@ -182,7 +182,7 @@ span.Harding {
 
 {% block content %}
 
-{% for year, month, monthName, cal in ymnamescals %} 
+{% for year, month, monthName, cal, PTO in ymnamescals %} 
 
     {% if not forloop.first %}
 
@@ -207,7 +207,7 @@ span.Harding {
                                 {% if day %}
                                 <td>
                                     {{ day }}<br />
-                                    <input type="checkbox" name="{{ day }}" value="{{ day }}">
+                                    <input type="checkbox" name="{{ day }}" value="{{ day }}" {% if day in PTO %}checked="checked"{%endif%}>
                                 </td>
                                 {% else %}
                                 <td></td>
@@ -220,5 +220,7 @@ span.Harding {
     {% endif %}
 
 {% endfor %}
+
+{{ PTODays }}
 
 {% endblock content %}

@@ -138,7 +138,13 @@ def update_pto(request,year,month):
     days = []
     for year,month in zip(years[1:],months[1:]):
         days.append(r.PTO.filter(date__month = month, date__year = year)) 
-    ymnamescals = zip(years, months, monthNames, cals)
+    PTODays = []
+    for y,m in zip(years,[None, month1, month2, month3, month4]):
+        if m:
+            PTODays.append([d.date.day for d in r.PTO.filter(date__month=m,date__year=y)])
+        else:
+            PTODays.append([])
+    ymnamescals = zip(years, months, monthNames, cals, PTODays)
     templateVars = { "ymnamescals" : ymnamescals}
     return render(request,"PTO.html",templateVars)
 
