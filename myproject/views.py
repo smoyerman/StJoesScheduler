@@ -133,7 +133,7 @@ def update_pto(request,year,month):
         month = int(month)
     except:
         raise Http404()
-    if yearmo ~= 201711:
+    if not yearmo == 201711:
         raise Http404()
     month2, year2, month0, year0 = moveMonths(month,year)
     month3, year3, month1, year1 = moveMonths(month2,year2)
@@ -161,6 +161,21 @@ def update_pto(request,year,month):
     templateVars = { "ymnamescals" : ymnamescals}
     return render(request,"PTO.html",templateVars)
 
+# Function to request a day of PTO from the calendar page
+def request_day(request, userid, year, month, day):
+    dayoff = smodels.DayOff.objects.get(date = datetime.date(int(year), int(month), int(day))) 
+    user = User.objects.get(id = int(userid))
+    resident = smodels.Resident.objects.get(user = user)
+    resident.PTO.add(dayoff)
+    resident.save()
+
+# Function to remove  aday of PTO from the calendar page
+def remove_day(request, userid, year, month, day):
+    dayoff = smodels.DayOff.objects.get(date = datetime.date(int(year), int(month), int(day))) 
+    user = User.objects.get(id = int(userid))
+    resident = smodels.Resident.objects.get(user = user)
+    resident.PTO.remove(dayoff)
+    resident.save()
 
 # Main function to generate scheduling page
 def generate_schedule(request,year,month):
