@@ -71,7 +71,7 @@ class Service(models.Model):
 # Individual day of call schedule - this is all we need for schedule storing!
 class Day(models.Model):
     date = models.DateField(verbose_name="On Call Day")
-    residents  = models.ManyToManyField(Resident, verbose_name="Residents on Call") 
+    residents = models.ManyToManyField(Resident, verbose_name="Residents on Call") 
 
     def get_residents(self):
         return "\n".join([r.lname for r in self.residents.all()])

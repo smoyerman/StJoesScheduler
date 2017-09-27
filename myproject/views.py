@@ -104,6 +104,19 @@ def homepage(request):
         return redirect('/schedule/2017/8/')
     return redirect('/schedule/'+str(now.year)+'/'+str(now.month))
 
+# Function to check on number of call days per resident - weekend and weekday
+def callDayChecker():
+    ResDict = {}
+    for res in smodels.Resident.objects.all():
+        ResDict[res.name] = [0,0]
+    for day in smodels.Day.objects.all():
+        for res in day.residents.all():
+            if day.date.weekday() < 4:
+                ResDict[res.name][0] += 1
+            else:
+                ResDict[res.name][1] += 1
+    return ResDict
+
 # Function to update PTO requests
 def update_pto(request,year,month):
     if request.user.is_authenticated():
@@ -120,7 +133,7 @@ def update_pto(request,year,month):
         month = int(month)
     except:
         raise Http404()
-    if yearmo < 20178:
+    if yearmo ~= 201711:
         raise Http404()
     month2, year2, month0, year0 = moveMonths(month,year)
     month3, year3, month1, year1 = moveMonths(month2,year2)

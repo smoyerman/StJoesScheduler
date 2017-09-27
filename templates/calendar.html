@@ -219,10 +219,8 @@ Add button to remake schedule (seniors)
                                 {% for res, service in day.1 %}
                                 <span id="{{service.onservice}}" class="{{service.get_onservice_display}}"><b>&nbsp;{{ res }}&nbsp;</b></span><br />
                                 {% endfor %}
-                                {% if user.is_staff %}
-                                    {% if day.2 %}
-                                        PTO: {% for name in day.2 %}{{name}}{% if not forloop.last %}, {% endif %}{% endfor %}
-                                    {% endif %}
+                                {% if day.2 %}
+                                    PTO: {% for name in day.2 %}{{name}}{% if not forloop.last %}, {% endif %}{% endfor %}
                                 {% endif %}
                             </td>
                             {% else %}
