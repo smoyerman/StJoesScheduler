@@ -149,6 +149,25 @@ span.Harding {
 
 {% endblock css %}
 
+{% block code %}
+
+    <script>
+
+        $(document).ready(function(){
+            $(':checkbox').change(function() {
+            // this will contain a reference to the checkbox   
+                if (this.checked) {
+                    alert("box checked!");
+                } else {
+                    alert("unchecked!");
+                }
+            });
+        });
+
+    </script>
+
+{% endblock code %}
+
 {% block title %}PTO Requests{% endblock title %}
 
 {% block header %}
