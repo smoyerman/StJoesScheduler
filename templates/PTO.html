@@ -172,35 +172,6 @@ span.Harding {
 
 {% block title %}PTO Requests{% endblock title %}
 
-{% block header %}
-
-    {% if user.is_authenticated %}
-        <header class="header-basic-light">
-
-            <div class="header-limiter">
-
-                <h1>Hello, {{user.first_name}} {{user.last_name}}</h1>
-
-                    <nav>
-                        <a href="#" class="selected">Schedule</a>
-                        {% if user.is_staff %}
-                        <a href="/admin/">Admin</a>
-                        {% endif %}
-                        <a href="#">PTO Requests</a>
-                        <a href="/logout/">Logout</a>
-                    </nav>
-
-                <!--<nav>
-                <a href="/login/">Login</a>
-                </nav>-->
-
-            </div>
-
-        </header>
-    {% endif %}
-
-{% endblock header %}
-
 {% block content %}
 
 <br />
@@ -244,7 +215,5 @@ span.Harding {
     {% endif %}
 
 {% endfor %}
-
-{{ PTODays }}
 
 {% endblock content %}

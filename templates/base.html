@@ -20,7 +20,34 @@
 
     <body>
 
-    {% block header %}{% endblock header %}
+        <header class="header-basic-light">
+        
+           <div class="header-limiter">
+       
+              {% if user.is_authenticated %}
+      
+                <h1>Hello, {{user.first_name}} {{user.last_name}}</h1>
+                <nav>
+                <a href="/" class="selected">Schedule</a>
+
+                    {% if user.is_staff %}
+                        <a href="/admin/">Admin</a>
+                    {% endif %}
+
+                    <a href="/pto/2017/11/">PTO Requests</a>
+                    <a href="/logout/">Logout</a>
+                </nav>
+    
+            {% else %}      
+                <nav>
+                    <a href="/login/">Login</a>
+                </nav>
+   
+            {% endif %}
+      
+         </div>
+         
+    </header>
 
     {% block content %}{% endblock content %}
 
