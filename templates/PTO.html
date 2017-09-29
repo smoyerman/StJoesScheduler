@@ -157,9 +157,11 @@ span.Harding {
             $(':checkbox').change(function() {
             // this will contain a reference to the checkbox   
                 if (this.checked) {
-                    alert("box checked!");
+                    var webstr = "http://stjoesscheduler.com/request/{{user.id}}/" + this.value + "/" + this.name + "/";
+                    $.get(webstr); 
                 } else {
-                    alert("unchecked!");
+                    var webstr = "http://stjoesscheduler.com/remove/{{user.id}}/" + this.value + "/" + this.name + "/";
+                    $.get(webstr); 
                 }
             });
         });
@@ -201,6 +203,9 @@ span.Harding {
 
 {% block content %}
 
+<br />
+<div style="padding-left:5em;">Select requested PTO days. Days are input or deleted automatically. No need to submit.</div>
+
 {% for year, month, monthName, cal, PTO in ymnamescals %} 
 
     {% if not forloop.first %}
@@ -226,7 +231,7 @@ span.Harding {
                                 {% if day %}
                                 <td>
                                     {{ day }}<br />
-                                    <input type="checkbox" name="{{ day }}" value="{{ day }}" {% if day in PTO %}checked="checked"{%endif%}>
+                                    <input type="checkbox" name="{{ day }}" value="{{year}}/{{month}}" {% if day in PTO %}checked="checked"{%endif%}>
                                 </td>
                                 {% else %}
                                 <td></td>
