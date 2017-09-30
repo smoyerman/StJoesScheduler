@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+
+{% block css %}
+<link href='http://fonts.googleapis.com/css?family=PT+Sans:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=PT+Sans+Narrow:400,700' rel='stylesheet' type='text/css'>
+
+<style>
+
+/*body {
+    line-height: 1;
+    margin: 50px;
+}*/
+
+div.schedule {
+    background: rgba(0, 0, 0, .1);
+    border-radius: 5px;
+    box-sizing: border-box;
+    padding: 15px;
+    width: 600px;
+    float:left;
+    margin-top:50px;
+    margin-left:50px;
+}
+
+div.key {
+    border-radius: 5px;
+    box-sizing: border-box;
+    padding: 10px;
+    margin-left: 20px;
+    margin-top:30px;
+    float:left;
+}
+
+header {
+    overflow: clear;
+    position: relative;
+}
+
+h2 {
+    font-family: 'PT Sans Narrow', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    margin: 0 0 10px;
+    text-align: center;
+}
+
+button {
+    position: absolute;
+    top: -4px;
+}
+
+button:first-child {
+    left: 0;
+}
+
+button:last-child {
+    right: 0;
+}
+
+table {
+    background: #fff;
+    border-collapse: collapse;
+    color: #222;
+    font-family: 'PT Sans', sans-serif;
+    font-size: 13px;
+    width: 40%;
+}
+
+td {
+    border: 1px solid #ccc;
+    color: #444;
+    line-height: 22px;
+    text-align: center;
+    height: 50px;
+    width: 60px;
+    vertical-align: text-top;
+    padding-top: 6px;
+    padding-bottom: 5px;
+}
+
+tr:first-child td {
+    color: #222;
+    font-weight: 700;
+}
+
+.selected {
+    background: #f0951d;
+    border: 0;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, .5) inset;
+}
+
+/* Anesthesia + IR */
+span.Anesthesia {
+    background-color: #ffffff; 
+}
+
+/* Trauma */
+span.Trauma {
+    background-color: red;
+}
+
+/* Hepato */
+span.Hepatobiliary {
+    background-color: #9ACD32;
+}
+
+/* Orange */
+span.Orange {
+    background-color: orange;
+}
+
+/* Blue */
+span.Blue {
+    background-color: #6495ED;
+}
+
+/* Gold */
+span.Gold {
+    background-color: gold;
+}
+
+/* Breast */
+span.Breast {
+    background-color: #FF69B4;
+}
+
+/* Breast */
+span.Colorectal {
+    background-color: #000000;
+    color: #ffffff;
+}
+
+/* PCH */
+span.PCH {
+    background-color: #BA55D3;
+}
+
+/* Vascular */
+span.Vascular {
+    background-color: #FFE4C4;
+}
+
+/* Harding */
+span.Harding {
+    background-color: #008B8B;
+}
+
+</style>
+
+{% endblock css %}
+
+{% block title %}PTO Requests{% endblock title %}
+
+{% block content %}
+
+<br /><h2>Call Days per Resident - Year to Date</h2><br />
+
+<table align="center">
+    <tr>
+        <th>Resident</th>
+        <th>Weekday Call Count</th>
+        <th>Weekend (F/Sa/Su) Call Count</th>
+    </tr>
+
+{% for res, calldays in ResDict.items %}
+
+<tr>
+    <td>{{res}}</td>
+    <td>{{calldays.0}}</td>
+    <td>{{calldays.1}}</td>
+</tr>
+
+{% endfor %}
+
+</table>
+
+{% endblock content %}
