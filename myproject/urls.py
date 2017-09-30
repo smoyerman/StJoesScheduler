@@ -16,6 +16,7 @@ Including another URLconf
 from django.conf.urls import url
 from django.contrib import admin
 from myproject.views import generate_schedule, homepage, update_pto, request_day, remove_day
+from myproject.views import see_call_day_count 
 from django.conf.urls import include
 
 urlpatterns = [
@@ -26,4 +27,5 @@ urlpatterns = [
     url(r'^pto/(\d{4})/(\d{1,2})/$', update_pto),
     url(r'^request/(\d{1,2})/(\d{4})/(\d{1,2})/(\d{1,2})/$', request_day),
     url(r'^remove/(\d{1,2})/(\d{4})/(\d{1,2})/(\d{1,2})/$', remove_day),
+    url(r'^calldaycount/$', see_call_day_count),
 ]

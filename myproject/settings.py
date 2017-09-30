@@ -123,6 +123,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
 
 STATIC_URL = '/schedulingmedia/'
 STATIC_ROOT = '/home/smoyerman/webapps/schedulingmedia/'
@@ -130,7 +131,7 @@ STATIC_ROOT = '/home/smoyerman/webapps/schedulingmedia/'
 ADMINS = (('Stephanie', 'smoyerman@gmail.com'))
 
 EMAIL_HOST = 'smtp.webfaction.com'
-EMAIL_HOST_USER = 'smoyerman'
+EMAIL_HOST_USER = 'smoyerman2'
 DEFAULT_FROM_EMAIL = 'steph@stjoesscheduler.com'
 EMAIL_HOST_PASSWORD = 'judo2039'
 SERVER_EMAIL = 'steph@stjoesscheduler.com'

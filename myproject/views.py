@@ -107,6 +107,7 @@ def homepage(request):
 # Function to check on number of call days per resident - weekend and weekday
 def callDayChecker():
     ResDict = {}
+    # Order this query by PGY year and list PGY level - add months in call pool
     for res in smodels.Resident.objects.all():
         ResDict[res.name] = [0,0]
     for day in smodels.Day.objects.all():
@@ -116,6 +117,11 @@ def callDayChecker():
             else:
                 ResDict[res.name][1] += 1
     return ResDict
+
+def see_call_day_count(request):
+    ResDict = callDayChecker()
+    templateVars = {"ResDict": ResDict}
+    return render(request, "CallCount.html", templateVars)
 
 # Function to update PTO requests
 def update_pto(request,year,month):
