@@ -23,25 +23,24 @@
         <header class="header-basic-light">
         
            <div class="header-limiter">
-       
               {% if user.is_authenticated %}
       
                 <h1>Hello, {{user.first_name}} {{user.last_name}}</h1>
                 <nav>
-                <a href="/" class="selected">Schedule</a>
+                    <a href="/" class={% if request.resolver_match.url_name == "schedule" %}"selected"{% endif %}>Schedule</a>
 
                     {% if user.is_staff %}
                         <a href="/admin/">Admin</a>
                     {% endif %}
 
-                    <a href="/pto/2017/11/">PTO Requests</a>
-                    <a href="/password_change/">Change Password</a>
+                    <a href="/pto/2017/11/" class={% if request.resolver_match.url_name == "pto" %}"selected"{% endif %}>PTO Requests</a>
+                    <a href="/password_change/" class={% if request.resolver_match.url_name == "password_change" %}"selected"{% endif %}>Change Password</a>
                     <a href="/logout/">Logout</a>
                 </nav>
     
             {% else %}      
                 <nav>
-                    <a href="/login/">Login</a>
+                    <a href="/login/" class={% if request.resolver_match.url_name == "login" %}"selected"{% endif %}>Login</a>
                 </nav>
    
             {% endif %}
