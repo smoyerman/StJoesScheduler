@@ -488,7 +488,7 @@ class DBScheduler():
         traumaSrServ = smodels.Service.objects.filter(month=self.month, year=self.year, onservice=self.tc.trauma).filter(res__resType="Senior")
         traumaSrs = [serv.res for serv in traumaSrServ]
         if len(traumaSrs) == 1:
-            for i in self.calendar[:,0]:
+            for i in self.calendar[:,6]:
                 if i > 0:
                     self.addSr(traumaSrs[0], i)
         elif len(traumaSrs) >= 2:
