@@ -108,7 +108,7 @@ def homepage(request):
 def callDayChecker():
     ResDict = {}
     # Order this query by PGY year and list PGY level - add months in call pool
-    for res in smodels.Resident.objects.all():
+    for res in smodels.Resident.objects.all().order_by('-year', 'lname'):
         ResDict[res.name] = [0,0]
     for day in smodels.Day.objects.all():
         for res in day.residents.all():

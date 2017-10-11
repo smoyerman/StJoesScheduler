@@ -164,11 +164,13 @@ span.Harding {
 
 {% for res, calldays in ResDict.items %}
 
+{% if not res == "Trauma Mayo" %}
 <tr>
     <td>{{res}}</td>
     <td>{{calldays.0}}</td>
     <td>{{calldays.1}}</td>
 </tr>
+{% endif %}
 
 {% endfor %}
 
