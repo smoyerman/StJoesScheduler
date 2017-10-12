@@ -155,9 +155,15 @@ span.Harding {
 <div class="schedule">
 
   <header>
+      {% if year == 2017 and lastMonth == 7 %}
+      {% else %}
       <button onclick="location.href='http://stjoesscheduler.com/schedule/{{lastYear}}/{{lastMonth}}'">«</button>
+      {% endif %}
           <h2>{{monthName}} {{year}}</h2>
+      {% if year == 2018 and lastMonth == 1 %}
+      {% else %}
           <button onclick="location.href='http://stjoesscheduler.com/schedule/{{nextYear}}/{{nextMonth}}'">»</button>
+        {% endif %}
                 </header>
                 <table>
                       <tr style="height:20px;">
