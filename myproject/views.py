@@ -8,6 +8,7 @@ import scheduler.models as smodels
 import datetime
 from django.contrib.auth.models import User
 from django.http import HttpResponse
+from django.db.models import Q
 
 # Function to advance and pull back months by 1
 def moveMonths(month,year):
@@ -109,13 +110,15 @@ def callDayChecker():
     ResDict = {}
     # Order this query by PGY year and list PGY level - add months in call pool
     for res in smodels.Resident.objects.all().order_by('-year', 'lname'):
-        ResDict[res.name] = [0,0]
+        ResDict[res] = [0,0]
     for day in smodels.Day.objects.all():
         for res in day.residents.all():
             if day.date.weekday() < 4:
-                ResDict[res.name][0] += 1
+                ResDict[res][0] += 1
             else:
-                ResDict[res.name][1] += 1
+                ResDict[res][1] += 1
+    lastday = smodels.Day.objects.order_by('-date').first()
+    #services_YTD = smodels.Service.objects.filter(year < lastday.year) | smodels.Service.objects.filter(year == lastday.year, month <= lastday.month)
     return ResDict
 
 def see_call_day_count(request):
@@ -196,6 +199,8 @@ def generate_schedule(request,year,month):
         if not 1 <= month <= 12:
             raise Http404()
         if yearmo < 20178:
+            raise Http404()
+        if year == 2018 and month > 2:
             raise Http404()
         # Check for pre-generated
         days = smodels.Day.objects.filter(date__month=month, date__year=year)
