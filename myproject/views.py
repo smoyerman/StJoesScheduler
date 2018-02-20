@@ -200,7 +200,7 @@ def generate_schedule(request,year,month):
             raise Http404()
         if yearmo < 20178:
             raise Http404()
-        if year == 2018 and month > 2:
+        if year == 2018 and month > 5:
             raise Http404()
         # Check for pre-generated
         days = smodels.Day.objects.filter(date__month=month, date__year=year)
